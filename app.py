@@ -35,7 +35,7 @@ else:
 # ==========================
 # Firebase
 # ==========================
-cred = credentials.Certificate("firebase.json")
+
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
