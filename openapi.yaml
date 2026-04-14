@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: Sistema de Catraca API
+  description: API para gerenciamento de alunos e controle de acesso via catraca.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+    description: Servidor de Desenvolvimento
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /login:
+    post:
+      summary: Realiza login do administrador
+      tags: [Autenticação]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usuario: {type: string}
+                senha: {type: string}
+      responses:
+        '200':
+          description: Retorna o token JWT
+        '401':
+          description: Credenciais inválidas
+
+  /alunos:
+    get:
+      summary: Lista todos os alunos
+      tags: [Alunos]
+      responses:
+        '200':
+          description: Lista de objetos de alunos
+    post:
+      summary: Cadastra um novo aluno
+      tags: [Alunos]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome: {type: string}
+                cpf: {type: string}
+                status: {type: string, enum: [ativo, bloqueado]}
+      responses:
+        '201':
+          description: Aluno criado
+        '400':
+          description: CPF inválido ou erro de validação
+
+  /alunos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: integer}
+    get:
+      summary: Busca aluno por ID
+      tags: [Alunos]
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Dados do aluno
+        '404':
+          description: Aluno não encontrado
+    put:
+      summary: Atualiza dados do aluno
+      tags: [Alunos]
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Atualizado com sucesso
+    delete:
+      summary: Remove um aluno
+      tags: [Alunos]
+      security: [{bearerAuth: []}]
+      responses:
+        '200':
+          description: Removido com sucesso
+
+  /catraca:
+    post:
+      summary: Valida acesso do aluno
+      tags: [Catraca]
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cpf: {type: string}
+      responses:
+        '200':
+          description: Acesso LIBERADO
+        '403':
+          description: Acesso BLOQUEADO
