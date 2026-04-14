@@ -252,7 +252,6 @@ def buscar_aluno(id):
 
 # CONSULTA COM CPF
 @app.route("/alunos/cpf/<cpf>", methods=['GET'])
-@token_obrigatorio
 def buscar_por_cpf(cpf):
     try:
         alunos_ref = db.collection("alunos")
