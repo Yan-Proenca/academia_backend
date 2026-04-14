@@ -166,7 +166,7 @@ def post_alunos():
             "details": str(e)
         }), 500
 
-@app.route("/catraca", methods=['POST'])
+@app.route("/catraca", methods=['GET'])
 def catraca_json():
 
     dados = request.get_json()
