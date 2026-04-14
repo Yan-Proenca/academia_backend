@@ -308,63 +308,6 @@ def atualizar_aluno(id):
             "details": str(e)
         }), 500
 
-# EDITAR PARCIALMENTE ALUNO (PATCH)
-@app.route("/alunos/<int:id>", methods=['PATCH'])
-@token_obrigatorio
-def editar_parcial_aluno(id):
-    dados = request.get_json()
-
-    if not dados:
-        return jsonify({"error": "Nenhum dado fornecido para atualização"}), 400
-
-    try:
-        aluno_ref = db.collection("alunos").document(str(id))
-        doc = aluno_ref.get()
-
-        if not doc.exists:
-            return jsonify({"error": "Aluno não encontrado"}), 404
-
-        update_data = {}
-
-        # Atualiza apenas se a chave existir no JSON enviado
-        if "nome" in dados:
-            update_data["nome"] = dados["nome"]
-
-        if "status" in dados:
-            status = dados["status"].lower()
-            if status not in ["ativo", "bloqueado"]:
-                return jsonify({"error": "Status inválido. Use 'ativo' ou 'bloqueado'"}), 400
-            update_data["status"] = status
-
-        if "cpf" in dados:
-            cpf = dados["cpf"]
-            if not cpf_valido(cpf):
-                return jsonify({"error": "CPF inválido"}), 400
-            
-            # Opcional: Verificar se o novo CPF já pertence a outro aluno
-            query = db.collection("alunos").where("cpf", "==", cpf).stream()
-            for d in query:
-                if d.id != str(id):
-                    return jsonify({"error": "Este CPF já está cadastrado em outro usuário"}), 400
-            
-            update_data["cpf"] = cpf
-
-        if not update_data:
-            return jsonify({"error": "Nenhum campo válido para atualização foi enviado"}), 400
-
-        aluno_ref.update(update_data)
-
-        return jsonify({
-            "message": "Aluno atualizado parcialmente com sucesso",
-            "campos_alterados": list(update_data.keys())
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "error": "Erro ao atualizar parcialmente o aluno",
-            "details": str(e)
-        }), 500
-
 # DELETE ALUNO
 @app.route("/alunos/<int:id>", methods=['DELETE'])
 @token_obrigatorio
