@@ -167,7 +167,6 @@ def post_alunos():
         }), 500
 
 @app.route("/catraca", methods=['POST'])
-@token_obrigatorio
 def catraca_json():
 
     dados = request.get_json()
