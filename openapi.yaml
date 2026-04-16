@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
-  title: Sistema de Catraca API
-  description: API para gerenciamento de alunos e controle de acesso via catraca.
+  title: API Sistema de Catraca
+  description: API para gerenciamento de alunos e controle de acesso via catraca com integração Firebase.
   version: 1.0.0
 
 servers:
-  - url: /
-    description: Servidor de Desenvolvimento
+  - url: http://localhost:5000
+    description: Servidor Local
 
 components:
   securitySchemes:
@@ -15,11 +15,38 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+  schemas:
+    Aluno:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nome:
+          type: string
+          example: "João Silva"
+        cpf:
+          type: string
+          example: "12345678901"
+        status:
+          type: string
+          enum: [ativo, bloqueado]
+          example: "ativo"
+
 paths:
+  /:
+    get:
+      summary: Verifica o status da API
+      responses:
+        "200":
+          description: API online
+          content:
+            application/json:
+              example: { "api": "Sistema de Catraca" }
+
   /login:
     post:
-      summary: Realiza login do administrador
-      tags: [Autenticação]
+      summary: Realiza login administrativo
       requestBody:
         required: true
         content:
@@ -28,24 +55,30 @@ paths:
               type: object
               required: [usuario, senha]
               properties:
-                usuario: { type: string }
-                senha: { type: string }
+                usuario:
+                  type: string
+                senha:
+                  type: string
       responses:
         "200":
-          description: Login realizado com sucesso
+          description: Login bem-sucedido
         "401":
           description: Usuário ou senha inválidos
 
   /alunos:
     get:
       summary: Lista todos os alunos
-      tags: [Alunos]
       responses:
         "200":
-          description: Lista de objetos de alunos
+          description: Lista de alunos cadastrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Aluno"
     post:
       summary: Cadastra um novo aluno
-      tags: [Alunos]
       security:
         - bearerAuth: []
       requestBody:
@@ -56,24 +89,28 @@ paths:
               type: object
               required: [nome, cpf, status]
               properties:
-                nome: { type: string }
-                cpf: { type: string }
-                status: { type: string, enum: [ativo, bloqueado] }
+                nome:
+                  type: string
+                cpf:
+                  type: string
+                status:
+                  type: string
+                  enum: [ativo, bloqueado]
       responses:
         "201":
-          description: Aluno cadastrado com sucesso
+          description: Aluno cadastrado
         "400":
-          description: CPF inválido, já cadastrado ou status inválido
+          description: Dados inválidos ou CPF já cadastrado
 
   /alunos/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        schema: { type: integer }
+        schema:
+          type: integer
     get:
       summary: Busca aluno por ID
-      tags: [Alunos]
       security:
         - bearerAuth: []
       responses:
@@ -82,8 +119,19 @@ paths:
         "404":
           description: Aluno não encontrado
     put:
-      summary: Atualiza dados do aluno
-      tags: [Alunos]
+      summary: Atualiza todos os dados do aluno
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Aluno"
+      responses:
+        "200":
+          description: Aluno atualizado
+    patch:
+      summary: Atualiza parcialmente um aluno
       security:
         - bearerAuth: []
       requestBody:
@@ -97,39 +145,47 @@ paths:
                 status: { type: string, enum: [ativo, bloqueado] }
       responses:
         "200":
-          description: Aluno atualizado com sucesso
+          description: Campos atualizados com sucesso
     delete:
       summary: Remove um aluno
-      tags: [Alunos]
       security:
         - bearerAuth: []
       responses:
         "200":
-          description: Aluno deletado com sucesso
+          description: Aluno deletado
 
   /alunos/cpf/{cpf}:
     get:
-      summary: Busca aluno por CPF
-      tags: [Alunos]
+      summary: Busca aluno pelo número do CPF
       parameters:
         - name: cpf
           in: path
           required: true
-          schema: { type: string }
+          schema:
+            type: string
       responses:
         "200":
-          description: Dados do aluno encontrados por CPF
+          description: Dados do aluno
         "404":
           description: Aluno não encontrado
 
   /catraca:
     post:
-      summary: Valida acesso do aluno (Sem Token)
-      tags: [Catraca]
+      summary: Valida acesso do aluno e gera log
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
+              required: [cpf]
+              properties:
+                cpf:
+                  type: string
+      responses:
+        "200":
+          description: Acesso LIBERADO
+        "403":
+          description: Acesso BLOQUEADO
+        "404":
+          description: Aluno não encontrado
