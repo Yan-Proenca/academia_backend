@@ -168,12 +168,6 @@ def post_alunos():
 
 @app.route("/catraca", methods=['GET'])
 def catraca_json():
-
-    dados = request.get_json()
-
-    if not dados or "cpf" not in dados:
-        return jsonify({"error": "CPF não informado"}), 400
-
     cpf = request.args.get("cpf")
 
     # Validar CPF real
