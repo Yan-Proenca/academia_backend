@@ -168,9 +168,17 @@ def post_alunos():
             "details": str(e)
         }), 500
 
-@app.route("/catraca", methods=['GET'])
+@app.route("/catraca", methods=['POST'])
 def catraca_json():
-    cpf = request.args.get("cpf")
+    dados = request.get_json()
+
+    if not dados or "cpf" not in dados:
+        return jsonify({
+            "status": "BLOQUEADO",
+            "motivo": "Campo 'cpf' é obrigatório no corpo da requisição."
+        }), 400
+
+    cpf = dados.get("cpf")
 
     # Validar CPF real
     if not cpf_valido(cpf):
@@ -180,21 +188,18 @@ def catraca_json():
         }), 400
 
     try:
+        # Busca otimizada com limite de 1
         alunos_ref = db.collection('alunos')
-        query = alunos_ref.where('cpf', '==', cpf).limit(1).stream()
+        query = alunos_ref.where('cpf', '==', cpf).limit(1).get()
 
-        aluno_doc = None
-        for doc in query:
-            aluno_doc = doc
-            break
-
-        # CPF não encontrado
-        if not aluno_doc:
+        if not query:
             return jsonify({
                 "status": "BLOQUEADO",
                 "motivo": "Aluno não encontrado"
             }), 404
 
+        # Extrai dados do primeiro documento encontrado
+        aluno_doc = query[0]
         aluno = aluno_doc.to_dict()
         status = aluno.get('status', '').lower()
 
@@ -205,9 +210,10 @@ def catraca_json():
             resultado = "BLOQUEADO"
             codigo = 403
 
-        # Log da catraca
+        # Log da catraca (Efeito colateral que justifica o uso de POST)
         db.collection("logs_catraca").add({
             "cpf": cpf,
+            "aluno_id": aluno_doc.id,
             "status": resultado,
             "data": datetime.utcnow()
         })

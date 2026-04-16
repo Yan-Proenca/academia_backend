@@ -1,19 +1,19 @@
 openapi: 3.0.0
 info:
   title: Sistema de Catraca API
-  description: API para gerenciamento de alunos e controle de acesso via catraca.
+  [cite_start]description: API para gerenciamento de alunos e controle de acesso via catraca com registro de logs. [cite: 1]
   version: 1.0.0
 
 servers:
   - url: /
-    description: Servidor de Desenvolvimento
+    [cite_start]description: Servidor de Desenvolvimento [cite: 1]
 
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
+      [cite_start]bearerFormat: JWT [cite: 1]
 
 paths:
   /login:
@@ -32,9 +32,9 @@ paths:
                 senha: {type: string}
       responses:
         '200':
-          description: Login realizado com sucesso
+          [cite_start]description: Login realizado com sucesso [cite: 1]
         '401':
-          description: Usuário ou senha inválidos
+          [cite_start]description: Usuário ou senha inválidos [cite: 1]
 
   /alunos:
     get:
@@ -42,7 +42,7 @@ paths:
       tags: [Alunos]
       responses:
         '200':
-          description: Lista de objetos de alunos
+          [cite_start]description: Lista de objetos de alunos [cite: 1]
     post:
       summary: Cadastra um novo aluno
       tags: [Alunos]
@@ -61,9 +61,9 @@ paths:
                 status: {type: string, enum: [ativo, bloqueado]}
       responses:
         '201':
-          description: Aluno cadastrado com sucesso
+          [cite_start]description: Aluno cadastrado com sucesso [cite: 1]
         '400':
-          description: CPF inválido, já cadastrado ou status inválido
+          [cite_start]description: CPF inválido, já cadastrado ou status inválido [cite: 1]
 
   /alunos/{id}:
     parameters:
@@ -78,9 +78,9 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Dados do aluno
+          [cite_start]description: Dados do aluno [cite: 1]
         '404':
-          description: Aluno não encontrado
+          [cite_start]description: Aluno não encontrado [cite: 1]
     put:
       summary: Atualiza dados do aluno
       tags: [Alunos]
@@ -97,7 +97,7 @@ paths:
                 status: {type: string, enum: [ativo, bloqueado]}
       responses:
         '200':
-          description: Aluno atualizado com sucesso
+          [cite_start]description: Aluno atualizado com sucesso [cite: 1]
     delete:
       summary: Remove um aluno
       tags: [Alunos]
@@ -105,7 +105,7 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Aluno deletado com sucesso
+          [cite_start]description: Aluno deletado com sucesso [cite: 1]
 
   /alunos/cpf/{cpf}:
     get:
@@ -118,13 +118,14 @@ paths:
           schema: {type: string}
       responses:
         '200':
-          description: Dados do aluno encontrados por CPF
+          [cite_start]description: Dados do aluno encontrados por CPF [cite: 1]
         '404':
-          description: Aluno não encontrado
+          [cite_start]description: Aluno não encontrado [cite: 1]
 
   /catraca:
     post:
       summary: Valida acesso do aluno (Sem Token)
+      [cite_start]description: Recebe o CPF via JSON, valida o status do aluno e registra um log de acesso. [cite: 1]
       tags: [Catraca]
       requestBody:
         required: true
@@ -132,4 +133,23 @@ paths:
           application/json:
             schema:
               type: object
-              required:
+              required: [cpf]
+              properties:
+                cpf:
+                  type: string
+                  example: "12345678901"
+      responses:
+        '200':
+          [cite_start]description: Acesso LIBERADO [cite: 1]
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: "LIBERADO"}
+        '403':
+          [cite_start]description: Acesso BLOQUEADO (aluno inativo ou bloqueado) [cite: 1]
+        '400':
+          [cite_start]description: CPF inválido ou dados mal formatados [cite: 1]
+        '404':
+          [cite_start]description: Aluno não encontrado [cite: 1]
