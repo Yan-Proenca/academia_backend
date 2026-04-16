@@ -1,19 +1,19 @@
 openapi: 3.0.0
 info:
   title: Sistema de Catraca API
-  [cite_start]description: API para gerenciamento de alunos e controle de acesso via catraca com registro de logs. [cite: 1]
+  description: API para gerenciamento de alunos e controle de acesso via catraca.
   version: 1.0.0
 
 servers:
   - url: /
-    [cite_start]description: Servidor de Desenvolvimento [cite: 1]
+    description: Servidor de Desenvolvimento
 
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      [cite_start]bearerFormat: JWT [cite: 1]
+      bearerFormat: JWT
 
 paths:
   /login:
@@ -28,21 +28,21 @@ paths:
               type: object
               required: [usuario, senha]
               properties:
-                usuario: {type: string}
-                senha: {type: string}
+                usuario: { type: string }
+                senha: { type: string }
       responses:
-        '200':
-          [cite_start]description: Login realizado com sucesso [cite: 1]
-        '401':
-          [cite_start]description: Usuário ou senha inválidos [cite: 1]
+        "200":
+          description: Login realizado com sucesso
+        "401":
+          description: Usuário ou senha inválidos
 
   /alunos:
     get:
       summary: Lista todos os alunos
       tags: [Alunos]
       responses:
-        '200':
-          [cite_start]description: Lista de objetos de alunos [cite: 1]
+        "200":
+          description: Lista de objetos de alunos
     post:
       summary: Cadastra um novo aluno
       tags: [Alunos]
@@ -56,31 +56,31 @@ paths:
               type: object
               required: [nome, cpf, status]
               properties:
-                nome: {type: string}
-                cpf: {type: string}
-                status: {type: string, enum: [ativo, bloqueado]}
+                nome: { type: string }
+                cpf: { type: string }
+                status: { type: string, enum: [ativo, bloqueado] }
       responses:
-        '201':
-          [cite_start]description: Aluno cadastrado com sucesso [cite: 1]
-        '400':
-          [cite_start]description: CPF inválido, já cadastrado ou status inválido [cite: 1]
+        "201":
+          description: Aluno cadastrado com sucesso
+        "400":
+          description: CPF inválido, já cadastrado ou status inválido
 
   /alunos/{id}:
     parameters:
       - name: id
         in: path
         required: true
-        schema: {type: integer}
+        schema: { type: integer }
     get:
       summary: Busca aluno por ID
       tags: [Alunos]
       security:
         - bearerAuth: []
       responses:
-        '200':
-          [cite_start]description: Dados do aluno [cite: 1]
-        '404':
-          [cite_start]description: Aluno não encontrado [cite: 1]
+        "200":
+          description: Dados do aluno
+        "404":
+          description: Aluno não encontrado
     put:
       summary: Atualiza dados do aluno
       tags: [Alunos]
@@ -92,20 +92,20 @@ paths:
             schema:
               type: object
               properties:
-                nome: {type: string}
-                cpf: {type: string}
-                status: {type: string, enum: [ativo, bloqueado]}
+                nome: { type: string }
+                cpf: { type: string }
+                status: { type: string, enum: [ativo, bloqueado] }
       responses:
-        '200':
-          [cite_start]description: Aluno atualizado com sucesso [cite: 1]
+        "200":
+          description: Aluno atualizado com sucesso
     delete:
       summary: Remove um aluno
       tags: [Alunos]
       security:
         - bearerAuth: []
       responses:
-        '200':
-          [cite_start]description: Aluno deletado com sucesso [cite: 1]
+        "200":
+          description: Aluno deletado com sucesso
 
   /alunos/cpf/{cpf}:
     get:
@@ -115,17 +115,16 @@ paths:
         - name: cpf
           in: path
           required: true
-          schema: {type: string}
+          schema: { type: string }
       responses:
-        '200':
-          [cite_start]description: Dados do aluno encontrados por CPF [cite: 1]
-        '404':
-          [cite_start]description: Aluno não encontrado [cite: 1]
+        "200":
+          description: Dados do aluno encontrados por CPF
+        "404":
+          description: Aluno não encontrado
 
   /catraca:
     post:
       summary: Valida acesso do aluno (Sem Token)
-      [cite_start]description: Recebe o CPF via JSON, valida o status do aluno e registra um log de acesso. [cite: 1]
       tags: [Catraca]
       requestBody:
         required: true
@@ -133,23 +132,4 @@ paths:
           application/json:
             schema:
               type: object
-              required: [cpf]
-              properties:
-                cpf:
-                  type: string
-                  example: "12345678901"
-      responses:
-        '200':
-          [cite_start]description: Acesso LIBERADO [cite: 1]
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status: {type: string, example: "LIBERADO"}
-        '403':
-          [cite_start]description: Acesso BLOQUEADO (aluno inativo ou bloqueado) [cite: 1]
-        '400':
-          [cite_start]description: CPF inválido ou dados mal formatados [cite: 1]
-        '404':
-          [cite_start]description: Aluno não encontrado [cite: 1]
+              required:
