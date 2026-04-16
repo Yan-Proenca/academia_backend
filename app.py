@@ -43,6 +43,8 @@ db = firestore.client()
 # FUNÇÃO VALIDAR CPF
 # ==========================
 def cpf_valido(cpf):
+    if not cpf or not isinstance(cpf, str): # Segurança extra
+        return False
     cpf = ''.join(filter(str.isdigit, cpf))
 
     if len(cpf) != 11 or cpf == cpf[0] * 11:
